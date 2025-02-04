@@ -1,0 +1,81 @@
+.flex-center{
+    display: flex;
+    justify-content: center;    
+    flex-direction: column;
+    border: 1px solid #cecece;
+    padding: 3em 4em;
+    gap: 1em;
+    background: linear-gradient(135deg, #f9f9f9, #e0e0e0);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.flex-center:hover {
+    transform: scale(1.02);
+}
+
+.container .flex{
+    display: flex;
+    justify-content: space-between;
+    
+}
+
+.container .flex span {
+    font-size: 1.4em;
+    color: #333;
+    transition: color 0.3s;
+}
+
+.container .flex span.achive {
+    font-weight: bold;
+    color: #ff2a66;
+    background: #e0f7fa;
+}
+
+.container .flex span:hover {
+    color: #ff2a66;
+    text-decoration: underline;
+}
+
+table {
+    width: 100%;
+}
+
+.table-header {
+    color: #ffffff;
+    font-size: 1.1em;
+    text-align: center;
+    background: #3a3a3a;
+    padding: 18px 0;
+    font-weight: bold;
+}
+
+.table-body {
+    font-size: 1.1em;
+    text-align: center;
+    background: #f2f2f2;
+    padding: 18px 0;
+}
+
+.table-header, .table-body {
+    border-collapse: collapse;
+}
+
+.table-header > tr > td, .table-body > tr > td {
+    padding: 12px;
+    border: 1px solid #faff5a;   
+    transition: background-color 0.3s;
+}
+
+.table-body > tr:hover {
+    background-color: #e0e0e0;
+}
+
+.table-body > tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.table-body > tr:nth-child(odd) {
+    background-color: #ffffff;
+}
