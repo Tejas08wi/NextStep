@@ -97,13 +97,15 @@ function Body() {
                        className="w-24 h-24 mb-6 rounded-full object-cover mx-auto border-2 border-white/50 group-hover:border-white transition-all duration-300 relative z-10" />
                 </div>
                 <h2 className="text-2xl md:text-3xl mb-3 text-white text-center font-bold group-hover:text-white transition-colors duration-300">Referrals</h2>
-                <p className="mb-6 text-white/80 text-center text-base md:text-lg group-hover:text-white transition-colors duration-300">
-                  Leverage our network for career referrals
+                <p className="mb-6 text-white/80 text-center text-base md:text-lg group-hover:text-white transition-opacity duration-300">
+                  Invite friends, earn rewards...
                 </p>
+                <Link to="/body/referrals" className="block text-center">
                 <button className="w-full py-2 px-4 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all duration-300 font-medium text-sm md:text-base group-hover:bg-white/20">
-                  Know More
-                  <img src={arrow} className="w-4 h-4 inline-block ml-2 transition-transform duration-300 group-hover:translate-x-1" />
-                </button>
+                    Know More
+                    <img src={arrow} className="w-4 h-4 inline-block ml-2 transition-transform duration-300 group-hover:translate-x-1" />
+                  </button>
+                </Link>
               </div>
 
               <div className="group bg-white/10 backdrop-blur-lg p-6 rounded-xl transition-all duration-300 hover:bg-gradient-to-r from-blue-500/90 via-purple-500/90 to-pink-500/90 hover:translate-y-[-12px] hover:scale-105 border border-white/20 hover:border-white/40 shadow-lg hover:shadow-2xl w-full max-w-sm">
@@ -172,12 +174,14 @@ function Body() {
                 </div>
                 <h2 className="text-2xl md:text-3xl mb-3 text-white text-center font-bold group-hover:text-white transition-colors duration-300">Job Opportunities</h2>
                 <p className="mb-6 text-white/80 text-center text-base md:text-lg group-hover:text-white transition-colors duration-300">
-                  Explore the next step in your career. . . .
+                  Explore exciting career opportunities...
                 </p>
-                <button className="w-full py-2 px-4 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all duration-300 font-medium text-sm md:text-base group-hover:bg-white/20">
-                  Know More
-                  <img src={arrow} className="w-4 h-4 inline-block ml-2 transition-transform duration-300 group-hover:translate-x-1" />
-                </button>
+                <Link to="/body/job-opportunities">
+                  <button className="w-full py-2 px-4 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all duration-300 font-medium text-sm md:text-base group-hover:bg-white/20">
+                    Know More
+                    <img src={arrow} className="w-4 h-4 inline-block ml-2 transition-transform duration-300 group-hover:translate-x-1" />
+                  </button>
+                </Link>
               </div>
 
               <div className="group bg-white/10 backdrop-blur-lg p-6 rounded-xl transition-all duration-300 hover:bg-gradient-to-r from-blue-500/90 via-purple-500/90 to-pink-500/90 hover:translate-y-[-12px] hover:scale-105 border border-white/20 hover:border-white/40 shadow-lg hover:shadow-2xl w-full max-w-sm">
@@ -198,6 +202,8 @@ function Body() {
                 </button>
                 </Link>
               </div>
+
+              
             </div>
           </div>
         </div>

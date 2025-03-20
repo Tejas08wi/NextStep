@@ -13,7 +13,13 @@ import Entrepreneurship from './components/Entrepreneurship';
 import Interview from './components/Interview';
 import Quiz from './quiz/Quiz';
 import QuizSection from './quiz/QuizSection';
-import { Result}  from './quiz/Result'; 
+import { Result } from './quiz/Result';
+import CreateQuiz from './quiz/CreateQuiz';
+import Admin from './components/Admin';
+import ReferralPage from './components/ReferralPage';
+import WeeklyAssessment from './components/WeeklyAssessment';
+import { PointsProvider } from './context/PointsContext';
+import JobOpportunities from './components/JobOpportunities';
 
 import {
   BrowserRouter as Router,
@@ -37,30 +43,29 @@ function App() {
   }
 
   return (
-      <>
-      
-       <Router>
-       <RefrshHandler setIsAuthenticated={setIsAuthenticated} />
-      <Routes>
-        <Route path="/" element={<Mainpage/>} />
-        <Route path='/body' element={<PrivateRoute element={<Body />} />} />
-        <Route path="/body/career-cafe" element={<PrivateRoute element={<CareerCafe />} />} />
-        <Route path="/body/entrepreneurship" element={<PrivateRoute element={<Entrepreneurship />} />} />
-        <Route path="/body/interview" element={<PrivateRoute element={<Interview/>} />} />
-        <Route path="/body/quiz" element={<PrivateRoute element={<Quiz/>} />} />
-        <Route path="/body/quizsection" element={<PrivateRoute element={<QuizSection/>} />} />
-        <Route path='/body/result' element={<Result/>}  />
-        <Route path="/login" element={<Login_page/>}/>
-        <Route path="/myprofile" element = {<Profile/>}/>
-        <Route path="/signup" element = {<Signup/>}/>
-      </Routes>
-    </Router>
-    {/* <Categories/> */}
-    {/* <Body/> */}
-    {/* <Login_page/> */}
-    {/* <Mainpage/> */}
-    {/* <LoginPage/> */}
-      </>
+    <PointsProvider>
+      <Router>
+        <RefrshHandler setIsAuthenticated={setIsAuthenticated} />
+        <Routes>
+          <Route path="/" element={<Mainpage/>} />
+          <Route path='/body' element={<PrivateRoute element={<Body />} />} />
+          <Route path="/body/career-cafe" element={<PrivateRoute element={<CareerCafe />} />} />
+          <Route path="/body/entrepreneurship" element={<PrivateRoute element={<Entrepreneurship />} />} />
+          <Route path="/body/interview" element={<PrivateRoute element={<Interview/>} />} />
+          <Route path="/body/job-opportunities" element={<PrivateRoute element={<JobOpportunities />} />} />
+          <Route path="/body/quiz" element={<PrivateRoute element={<Quiz/>} />} />
+          <Route path="/body/quizsection/:quizId" element={<PrivateRoute element={<QuizSection/>} />} />
+          <Route path="/body/quiz/create" element={<PrivateRoute element={<CreateQuiz/>} />} />
+          <Route path="/body/referrals" element={<PrivateRoute element={<ReferralPage />} />} />
+          <Route path="/body/weekly-assessment" element={<PrivateRoute element={<WeeklyAssessment />} />} />
+          <Route path='/body/result' element={<Result/>}  />
+          <Route path="/login" element={<Login_page/>}/>
+          <Route path="/myprofile" element = {<Profile/>}/>
+          <Route path="/signup" element = {<Signup/>}/>
+          <Route path="/admin" element={<PrivateRoute element={<Admin />} />} />
+        </Routes>
+      </Router>
+    </PointsProvider>
   );
 }
 

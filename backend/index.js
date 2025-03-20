@@ -11,6 +11,12 @@ const io = require('socket.io')(http, {
   }
 });
 const AuthRouter = require('./Routes/AuthRouter');
+const AdminRouter = require('./Routes/AdminRouter');
+const QuizRouter = require('./Routes/QuizRouter');
+const JobRouter = require('./Routes/JobRouter');
+const ProjectRouter = require('./Routes/ProjectRouter');
+const LiveSession=require('./Routes/LiveSessionRouter');
+const CourseRouter = require('./Routes/CourseRouter');
 
 require('dotenv').config();
 require('./Models/db');
@@ -30,6 +36,12 @@ app.get('/', (req, res) => {
 });
 
 app.use('/auth', AuthRouter);
+app.use('/api/admin', AdminRouter);
+app.use('/api/quiz', QuizRouter);
+app.use('/api/jobs', JobRouter);
+app.use('/api/projects', ProjectRouter);
+app.use('/api/livesession',LiveSession);
+app.use('/api/courses', CourseRouter);
 
 io.on('connection', (socket) => {
     let userName = '';

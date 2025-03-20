@@ -12,7 +12,9 @@ function Signup() {
     const [signupInfo, setSignupInfo] = useState({
         name: '',
         email: '',
-        password: ''
+        password: '',
+        isAdmin: false,
+        adminCode: ''
     });
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const navigate = useNavigate();
@@ -31,10 +33,23 @@ function Signup() {
 
     const handleSignup = async (e) => {
         e.preventDefault();
-        const { name, email, password } = signupInfo;
+        const { name, email, password, isAdmin, adminCode } = signupInfo;
         if (!name || !email || !password) {
             return handleError('name, email and password are required')
         }
+        if (isAdmin && !adminCode) {
+            return handleError('admin code is required for admin signup')
+        }
+        
+        // Remove adminCode if not an admin
+        const signupData = {
+            name,
+            email,
+            password,
+            isAdmin,
+            ...(isAdmin ? { adminCode } : {})
+        };
+        
         try {
             const url = `http://localhost:8080/auth/signup`;
             console.log('Attempting to connect to:', url);
@@ -45,7 +60,7 @@ function Signup() {
                     'Accept': 'application/json'
                 },
                 credentials: 'include',
-                body: JSON.stringify(signupInfo)
+                body: JSON.stringify(signupData)
             });
 
             console.log('Response status:', response.status);
@@ -96,52 +111,79 @@ function Signup() {
                 className="container w-full max-w-md p-8 bg-white/10 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 relative hover:shadow-pink-500/20 transition-all duration-300"
             >
                 <h2 className="text-4xl font-bold text-center text-white mb-8">
-                    Student Sign Up
+                    {signupInfo.isAdmin ? 'Admin Sign Up' : 'Student Sign Up'}
                 </h2>
 
                 <form onSubmit={handleSignup} className="space-y-6">
-                    <div className="group">
-                        <label className="block text-white font-medium mb-2">Name</label>
-                        <input
-                            onChange={handleChange}
-                            type="text"
-                            name="name"
-                            value={signupInfo.name}
-                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-400/50 text-white placeholder-white/50 transition-all duration-300"
-                            placeholder="Enter your name..."
-                            autoFocus
-                        />
-                    </div>
+                    <div className="space-y-4">
+                        <div>
+                            <input
+                                type="text"
+                                name="name"
+                                value={signupInfo.name}
+                                onChange={handleChange}
+                                placeholder="Full Name"
+                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-pink-500 text-white placeholder-white/50"
+                                required
+                            />
+                        </div>
 
-                    <div className="group">
-                        <label className="block text-white font-medium mb-2">Email</label>
-                        <input
-                            onChange={handleChange}
-                            type="email"
-                            name="email"
-                            value={signupInfo.email}
-                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-400/50 text-white placeholder-white/50 transition-all duration-300"
-                            placeholder="Enter your email..."
-                        />
-                    </div>
+                        <div>
+                            <input
+                                type="email"
+                                name="email"
+                                value={signupInfo.email}
+                                onChange={handleChange}
+                                placeholder="Email Address"
+                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-pink-500 text-white placeholder-white/50"
+                                required
+                            />
+                        </div>
 
-                    <div className="group relative">
-                        <label className="block text-white font-medium mb-2">Password</label>
-                        <input
-                            onChange={handleChange}
-                            type={isPasswordVisible ? "text" : "password"}
-                            name="password"
-                            value={signupInfo.password}
-                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-400/50 text-white placeholder-white/50 transition-all duration-300"
-                            placeholder="Enter your password..."
-                        />
-                        <button
-                            type="button"
-                            className="absolute right-3 top-[42px] text-white/70 hover:text-white transition-colors"
-                            onClick={togglePasswordVisibility}
-                        >
-                            {isPasswordVisible ? "Hide" : "Show"}
-                        </button>
+                        <div className="relative">
+                            <input
+                                type={isPasswordVisible ? "text" : "password"}
+                                name="password"
+                                value={signupInfo.password}
+                                onChange={handleChange}
+                                placeholder="Password"
+                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-pink-500 text-white placeholder-white/50"
+                                required
+                            />
+                            <button
+                                type="button"
+                                onClick={togglePasswordVisibility}
+                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white"
+                            >
+                                {isPasswordVisible ? "Hide" : "Show"}
+                            </button>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                            <input
+                                type="checkbox"
+                                id="isAdmin"
+                                name="isAdmin"
+                                checked={signupInfo.isAdmin}
+                                onChange={(e) => setSignupInfo({ ...signupInfo, isAdmin: e.target.checked })}
+                                className="w-4 h-4 text-pink-500 border-white/10 rounded focus:ring-pink-500"
+                            />
+                            <label htmlFor="isAdmin" className="text-white">Sign up as Admin</label>
+                        </div>
+
+                        {signupInfo.isAdmin && (
+                            <div>
+                                <input
+                                    type="password"
+                                    name="adminCode"
+                                    value={signupInfo.adminCode}
+                                    onChange={handleChange}
+                                    placeholder="Admin Code"
+                                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-pink-500 text-white placeholder-white/50"
+                                    required
+                                />
+                            </div>
+                        )}
                     </div>
 
                     <motion.button

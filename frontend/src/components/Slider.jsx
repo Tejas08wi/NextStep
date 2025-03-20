@@ -1,6 +1,44 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { usePoints } from '../context/PointsContext';
 
 const LandingPage = () => {
+  const [courses, setCourses] = useState([]);
+  const [enrolledCourses, setEnrolledCourses] = useState(new Set(JSON.parse(localStorage.getItem('enrolledCourses')) || []));
+  const { addPoints } = usePoints();
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/courses');
+        const data = await response.json();
+        setCourses(data.courses || []);
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('enrolledCourses', JSON.stringify(Array.from(enrolledCourses)));
+  }, [enrolledCourses]);
+
+  const handleEnroll = (courseId) => {
+    if (!enrolledCourses.has(courseId)) {
+      const updatedEnrollments = new Set(enrolledCourses);
+      updatedEnrollments.add(courseId);
+      setEnrolledCourses(updatedEnrollments);
+      addPoints(15);
+
+      // Save course details to local storage
+      const enrolledCourseDetails = courses.find(course => course._id === courseId);
+      const existingJoinedCourses = JSON.parse(localStorage.getItem('joinedCourses')) || [];
+      existingJoinedCourses.push(enrolledCourseDetails);
+      localStorage.setItem('joinedCourses', JSON.stringify(existingJoinedCourses));
+    }
+  };
+
   return (
     <section className="min-h-screen flex flex-col lg:flex-row justify-between items-center px-4 md:px-10 lg:px-20 relative overflow-hidden animate-fadeIn pt-20 lg:pt-24">
       {/* Background layers */}
@@ -143,39 +181,14 @@ const LandingPage = () => {
       <div className="w-full max-w-2xl z-10 mt-8 lg:mt-0 lg:ml-8 flex flex-col h-[calc(100vh-120px)]">
         {/* Course Cards Grid - Adjusted for better fit */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 overflow-y-auto pr-4 scroll-smooth flex-grow">
-          {[
-            {
-              title: "Full Stack Development",
-              description: "Master both frontend and backend development with modern technologies.",
-              price: "₹1499",
-              image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=500"
-            },
-            {
-              title: "AI & Machine Learning",
-              description: "Learn to build intelligent systems and neural networks.",
-              price: "₹1899",
-              image: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=500"
-            },
-            {
-              title: "Cloud Computing",
-              description: "Master AWS, Azure, and cloud architecture principles.",
-              price: "₹1699",
-              image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=500"
-            },
-            {
-              title: "Data Science",
-              description: "Learn data analysis, visualization, and predictive modeling.",
-              price: "₹1799",
-              image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500"
-            }
-          ].map((course, index) => (
+          {courses.map((course, index) => (
             <div 
               key={index}
               className="group bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105 hover:bg-gradient-to-b hover:from-white hover:to-blue-50 transform perspective-1000"
             >
               <div className="relative overflow-hidden rounded-lg mb-4">
                 <img 
-                  src={course.image} 
+                  src={course.photo}
                   alt={course.title} 
                   className="w-full h-32 object-cover transform group-hover:scale-110 transition-transform duration-500"
                 />
@@ -188,9 +201,13 @@ const LandingPage = () => {
                 {course.description}
               </p>
               <div className="flex justify-between items-center mt-4">
-                <span className="text-blue-500 font-bold">{course.price}</span>
-                <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transform hover:scale-105 transition-all duration-300">
-                  Enroll Now
+                <span className="text-blue-500 font-bold">₹{course.price}</span>
+                <button 
+                  onClick={() => handleEnroll(course._id)} 
+                  className={`px-4 py-2 rounded-lg transition-all duration-300 ${enrolledCourses.has(course._id) ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'}`}
+                  disabled={enrolledCourses.has(course._id)}
+                >
+                  {enrolledCourses.has(course._id) ? 'Enrolled' : 'Enroll Now'}
                 </button>
               </div>
             </div>

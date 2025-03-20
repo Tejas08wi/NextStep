@@ -5,6 +5,7 @@ import aiimg from './allimages/Artificial Intelligence design.gif';
 import { Link, useNavigate } from "react-router-dom";
 import { handleSuccess } from '../utils';
 import { ToastContainer } from 'react-toastify';
+import { usePoints } from '../context/PointsContext';
 
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -13,13 +14,57 @@ const Navbar = () => {
   const [chatMessage, setChatMessage] = useState('');
   const [chatResponses, setChatResponses] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showPointsInfo, setShowPointsInfo] = useState(false);
+  const { points, resetPoints } = usePoints();
+
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
-  const [loggedInUser, setLoggedInUser] = useState('');
 
   useEffect(() => {
     setLoggedInUser(localStorage.getItem('loggedInUser'));
+    // First check if admin status is in localStorage
+    const storedAdminStatus = localStorage.getItem('isAdmin');
+    if (storedAdminStatus !== null) {
+      // Convert the string "true" or "false" to boolean, or handle direct boolean values
+      setIsAdmin(storedAdminStatus === true || storedAdminStatus === "true");
+    }
+    checkAdminStatus();
   }, []);
+
+  useEffect(() => {
+    // Get points from localStorage on component mount
+    const savedPoints = localStorage.getItem('userPoints');
+    if (!savedPoints) {
+      localStorage.setItem('userPoints', '0');
+    }
+  }, []);
+
+  const checkAdminStatus = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setIsAdmin(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8080/api/user/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      
+      if (data.isAdmin !== undefined) {
+        const adminStatus = data.isAdmin === true || data.isAdmin === "true";
+        setIsAdmin(adminStatus);
+        localStorage.setItem('isAdmin', adminStatus);
+      }
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+    }
+  };
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -66,6 +111,7 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('loggedInUser');
+    localStorage.removeItem('isAdmin'); // Also remove admin status on logout
     handleSuccess('User Logged out');
     setTimeout(() => {
       navigate('/login');
@@ -91,7 +137,7 @@ const Navbar = () => {
             
           </div>
 
-          <div className="flex items-center space-x-5">
+          <div className="flex items-center space-x-4">
             {/* AI Image Button */}
             <div className="w-12 h-12 rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0 hover:shadow-xl transition-shadow" onClick={toggleSidebar}>
               <img src={aiimg} alt="AI GIF" className="w-full h-full object-cover cursor-pointer" />
@@ -109,7 +155,23 @@ const Navbar = () => {
                     <Link to="/myprofile">
                       <li className="block px-5 py-3 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-500 hover:text-white rounded-xl font-bold transition-colors">My Profile</li>
                     </Link>
-                    <li><a href="#" className="block px-5 py-3 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white rounded-xl font-bold transition-colors">Weekly Assessment</a></li>
+                    {isAdmin && (
+                      <Link to="/admin">
+                        <li className="block px-5 py-3 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white rounded-xl font-bold transition-colors">Admin Panel</li>
+                      </Link>
+                    )}
+                    <Link to="/body/weekly-assessment">
+                      <li className="block px-5 py-3 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white rounded-xl font-bold transition-colors">
+                        <div className="flex items-center justify-between">
+                          <span>Weekly Assessment</span>
+                          {/* {assessmentStatus?.streak > 0 && (
+                            <span className="bg-orange-500 text-white px-2 py-1 rounded-full text-xs">
+                              🔥 {assessmentStatus.streak}
+                            </span>
+                          )} */}
+                        </div>
+                      </li>
+                    </Link>
                     <li><a href="#" className="block px-5 py-3 hover:bg-gradient-to-r hover:from-pink-500 hover:to-indigo-500 hover:text-white rounded-xl font-bold transition-colors">Customer Care</a></li>
                     <li><a href="#" className="block px-5 py-3 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-pink-500 hover:text-white rounded-xl font-bold transition-colors">Settings</a></li>
                     <li>
@@ -143,7 +205,7 @@ const Navbar = () => {
                 {darkMode ? (
                   <div className="absolute inset-0 flex items-center justify-center animate-spin-slow">
                     <svg className="w-8 h-8 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM10 5a1 1 0 011 1v.5a1 1 0 11-2 0V6a1 1 0 011-1zm0 3a1 1 0 100 2 1 1 0 000-2z" clipRule="evenodd" />
                     </svg>
                   </div>
                 ) : (
@@ -155,6 +217,103 @@ const Navbar = () => {
                 )}
               </div>
             </button>
+            <div className="relative">
+              <div 
+                className="flex items-center bg-gradient-to-r from-yellow-500 to-yellow-400 text-white px-3 py-1 rounded-full shadow-lg hover:from-yellow-400 hover:to-yellow-500 transition-all duration-300 cursor-pointer group"
+                onMouseEnter={() => setShowPointsInfo(true)}
+                onMouseLeave={() => setShowPointsInfo(false)}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1 text-yellow-100" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
+                </svg>
+                <span className="font-bold text-yellow-50">{points}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1 text-yellow-100 opacity-75 group-hover:opacity-100 transition-opacity" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+              </div>
+
+              {/* Points Info Popup */}
+              {showPointsInfo && (
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl z-50 transform transition-all duration-300 scale-100 origin-top-right border border-gray-100">
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-bold text-gray-800">How to Earn Points</h3>
+                    <div className="flex items-center gap-1 text-sm text-yellow-500 font-medium">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      Current: {points}
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="border-b pb-2">
+                      <h4 className="font-semibold text-indigo-600 mb-1">Daily Activities</h4>
+                      <ul className="text-sm text-gray-600 space-y-1">
+                        <li className="flex justify-between">
+                          <span>Daily Login</span>
+                          <span className="font-medium">10 points</span>
+                        </li>
+                        <li className="flex justify-between">
+                          <span>Weekly Login Streak</span>
+                          <span className="font-medium">50 bonus points</span>
+                        </li>
+                        <li className="flex justify-between">
+                          <span>First-time Website Visit</span>
+                          <span className="font-medium">1 point</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="border-b pb-2">
+                      <h4 className="font-semibold text-indigo-600 mb-1">Learning & Assessment</h4>
+                      <ul className="text-sm text-gray-600 space-y-1">
+                        <li className="flex justify-between">
+                          <span>Quiz Correct Answer</span>
+                          <span className="font-medium">5 points each</span>
+                        </li>
+                        <li className="flex justify-between">
+                          <span>Live Session</span>
+                          <span className="font-medium">10 points</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold text-indigo-600 mb-1">Career Development</h4>
+                      <ul className="text-sm text-gray-600 space-y-1">
+                        <li className="flex justify-between">
+                          <span>Start Mock Interview</span>
+                          <span className="font-medium">20 points</span>
+                        </li>
+                        <li className="flex justify-between">
+                          <span>Apply to Project</span>
+                          <span className="font-medium">10 points</span>
+                        </li>
+                        <li className="flex justify-between">
+                          <span>Apply to Jobs</span>
+                          <span className="font-medium">10 points</span>
+                        </li>
+                        <li className="flex justify-between">
+                          <span>Referral</span>
+                          <span className="font-medium">100 points</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 text-xs text-gray-500">
+                    * Points are awarded only once per unique activity
+                  </div>
+                  <button 
+                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                    onClick={() => resetPoints()}
+                  >
+                    Reset Points
+                  </button>
+                </div>
+              </div>
+              )}
+            </div>
           </div>
         </div>
 

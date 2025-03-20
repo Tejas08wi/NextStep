@@ -1,9 +1,39 @@
 import React, { useState, useEffect } from 'react'
+import VideoCall from './VideoCall';
+import { usePoints } from '../context/PointsContext';
 
 const Interview = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeTab, setActiveTab] = useState('all')
   const [selectedPlan, setSelectedPlan] = useState('monthly')
+  const [showVideoCall, setShowVideoCall] = useState(false);
+  const [roomId, setRoomId] = useState(null);
+
+  const { markActivityCompleted } = usePoints();
+
+  const generateRoomId = () => {
+    return Math.random().toString(36).substring(2, 15);
+  };
+
+  const handleStartDemo = () => {
+    const newRoomId = generateRoomId();
+    setRoomId(newRoomId);
+    setShowVideoCall(true);
+    // Copy room ID to clipboard
+    navigator.clipboard.writeText(newRoomId);
+    alert('Room ID has been copied to clipboard! Share this with someone to start the video call.');
+    
+    // Award points for starting a practice interview session
+    markActivityCompleted('interview_practice', newRoomId, 20);
+  };
+
+  const handleJoinDemo = () => {
+    const joinId = prompt('Please enter the room ID to join:');
+    if (joinId) {
+      setRoomId(joinId);
+      setShowVideoCall(true);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -139,12 +169,20 @@ const Interview = () => {
             >
               Get Started
             </a>
-            <a
-              href="#demo"
-              className="px-8 py-4 bg-white/10 backdrop-blur-md text-white rounded-full font-bold border border-white/30 transform hover:-translate-y-1 transition-all duration-300 hover:bg-white/20 w-48"
-            >
-              Watch Demo ▶️
-            </a>
+            <div className="flex gap-4">
+              <button
+                onClick={handleStartDemo}
+                className="px-8 py-4 bg-white/10 backdrop-blur-md text-white rounded-full font-bold border border-white/30 transform hover:-translate-y-1 transition-all duration-300 hover:bg-white/20 w-48"
+              >
+                Start Demo ▶️
+              </button>
+              <button
+                onClick={handleJoinDemo}
+                className="px-8 py-4 bg-white/10 backdrop-blur-md text-white rounded-full font-bold border border-white/30 transform hover:-translate-y-1 transition-all duration-300 hover:bg-white/20 w-48"
+              >
+                Join Demo 🤝
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -467,6 +505,13 @@ const Interview = () => {
           </div>
         </div>
       </footer>
+
+      {showVideoCall && (
+        <VideoCall
+          roomId={roomId}
+          onClose={() => setShowVideoCall(false)}
+        />
+      )}
     </div>
   )
 }
